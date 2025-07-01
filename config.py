@@ -8,7 +8,7 @@ def get_tesseract_config():
     if system == "windows":
         # Configuração para Windows
         tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-        tessdata_prefix = r"C:\Program Files\Tesseract-OCR"
+        tessdata_prefix = r"C:\Program Files\Tesseract-OCR\tessdata"
         
         # Verificar se existe, senão usar paths alternativos
         if not os.path.exists(tesseract_cmd):
@@ -20,16 +20,35 @@ def get_tesseract_config():
             for path in alternative_paths:
                 if os.path.exists(path):
                     tesseract_cmd = path
-                    tessdata_prefix = os.path.dirname(path)
+                    tessdata_prefix = os.path.join(os.path.dirname(path), "tessdata")
                     break
     
     elif system == "linux":
         tesseract_cmd = "tesseract"  # Usar do PATH
-        tessdata_prefix = "/usr/share/tesseract-ocr"
+        tessdata_prefix = "/usr/share/tesseract-ocr/4.00/tessdata"
+        # Verificar outros caminhos comuns no Linux
+        possible_tessdata_paths = [
+            "/usr/share/tesseract-ocr/5.00/tessdata",
+            "/usr/share/tesseract-ocr/tessdata",
+            "/usr/share/tessdata"
+        ]
+        for path in possible_tessdata_paths:
+            if os.path.exists(path):
+                tessdata_prefix = path
+                break
     
     elif system == "darwin":  # macOS
         tesseract_cmd = "/usr/local/bin/tesseract"
         tessdata_prefix = "/usr/local/share/tessdata"
+        # Verificar outros caminhos comuns no macOS
+        possible_tessdata_paths = [
+            "/opt/homebrew/share/tessdata",
+            "/usr/local/Cellar/tesseract/*/share/tessdata"
+        ]
+        for path in possible_tessdata_paths:
+            if os.path.exists(path):
+                tessdata_prefix = path
+                break
     
     return tesseract_cmd, tessdata_prefix
 
